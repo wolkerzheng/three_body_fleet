@@ -4,27 +4,37 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 
-# test on a small set, where all shop belongs to one mail
-# mail1 's id is m_1021 and it has 4924 records, 7 columns
-data = pd.read_csv("./subset/mail1.csv", header=0, low_memory=False)
+# test on a small set, where all shop belongs to one mall
+# mall1 's id is m_1021 and it has 4924 records, 7 columns
+data = pd.read_csv("./subset/mall1.csv", header=0, low_memory=False)
 
 # [1.0] encode wifi_names
 def get_all_wifi():
-    _wifi = {"NaN": 0}
-    i = 0
+    _wifi = {"NaN": 41}
+
     for wifi_list in data.wifi:
         wifi_info_list = wifi_list.split(";")
         for wifi_info in wifi_info_list:
             wifi_name, _, _ = wifi_info.split("|")
             if wifi_name in _wifi:
-                pass
+                _wifi[wifi_name] += 1
             else:
-                i += 1
-                _wifi[wifi_name] = i
+                _wifi[wifi_name] = 1
     return _wifi
 
 wifi_dict = get_all_wifi()
-wifi_names = list(wifi_dict.keys())
+
+# [1.1] before encoding wifi names, filter out some wifi below certain threshold
+obj = Series(wifi_dict)
+obj = obj[obj > 30]
+print(obj.index)
+
+fixed_wifi_dict = {}
+for index in obj.index:
+    fixed_wifi_dict[index] = True
+
+# only keeps part of the wifis
+wifi_names = list(fixed_wifi_dict.keys())
 label_encoder = LabelEncoder()
 label_encoder.fit(wifi_names)
 
@@ -37,14 +47,14 @@ wifi_infos = data.wifi
 def strongest_wifi(x):
     wifi_list = x.split(";")
     max_intensity = -9999
-    max_name = "FFF"
+    max_name = None
     for wifi in wifi_list:
         name, intensity, connection = wifi.split("|")
         intensity = int(intensity)
-        if intensity > max_intensity:
+        if intensity > max_intensity and name in fixed_wifi_dict:
             max_intensity = intensity
             max_name = name
-    return max_name
+    return max_name or "NaN"
 
 
 def connected_wifi(x):
@@ -53,7 +63,7 @@ def connected_wifi(x):
     max_name = "FFF"
     for _wifi_info in _wifi_infos:
         name, intensity, connection = _wifi_info.split("|")
-        if connection == "true":
+        if connection == "true" and name in fixed_wifi_dict:
             return name
     return "NaN"
 

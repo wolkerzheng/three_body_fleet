@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
 
 data_type = {'jin': np.float64, 'wei': np.float64}
 
@@ -19,12 +20,14 @@ feature['uid'] = label_encoder.fit_transform(feature['uid'])
 y = feature.sid
 X = feature.drop(['sid', 'time', 'mid'], axis=1)
 
+x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
 clf = RandomForestClassifier(n_estimators=5, max_depth=10, min_samples_split=5, random_state=0)
-clf = clf.fit(X, y)
+clf = clf.fit(x_train, y_train)
 
-y_pred = clf.predict(X)
+y_pred = clf.predict(x_test)
 
-s = accuracy_score(y, y_pred)
+s = accuracy_score(y_test, y_pred)
 
 print(s)
 
