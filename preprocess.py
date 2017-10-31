@@ -15,9 +15,9 @@ si.columns = ['sid', 'cid', 'jin', 'wei', 'price', 'mid']
 
 # [1.0] add mall id for every record
 
-sid_mid = si[['sid', 'mid']]
+sid_cid_mid = si[['sid', 'cid', 'mid']]
 # extended_user_shop_behavior (mall_id added)
-eusb = pd.merge(usb, sid_mid, on='sid')
+eusb = pd.merge(usb, sid_cid_mid, on='sid')
 
 # eusb.to_csv('i:tianchi/eusb.csv', index=None)
 
@@ -31,7 +31,8 @@ i = 0
 for k, v in mall_group:
     i += 1
     sorted_v = v.sort_values(by=['time'])
-    sorted_v.to_csv('./subset/mall%d.csv' % i, index=None)
+    print(k)
+    sorted_v.to_csv('./subset/' + k + '.csv', index=None)
 
 
 
