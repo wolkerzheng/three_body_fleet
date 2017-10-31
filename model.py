@@ -39,6 +39,11 @@ for file_name in os.listdir('./feature'):
     counter += y_test.size
     score += y_test.size * s
 
+    # save model
+    model_name = file_name.split(".")[0] + ".model"
+    model_path = "./model/" + model_name
+    joblib.dump(clf, model_path)
+
 print(score / counter)
 
 
