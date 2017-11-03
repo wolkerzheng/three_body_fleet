@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from pandas import Series
+from sklearn.neighbors import BallTree, DistanceMetric
+from math import radians, cos, sin, asin, sqrt
+import numpy as np
 
 fixed_wifi_dict = {}
 
@@ -66,3 +69,34 @@ def wifi_filter(wifi_dict):
     global fixed_wifi_dict
     fixed_wifi_dict = obj.to_dict()
     return fixed_wifi_dict
+
+
+#transform [latitude, longitude] to radians
+def latlng2radians(X):
+	radiansX = []
+	for latlng in X:
+		lat1, lng1 = map(radians, latlng)
+		radiansX.append([lat1, lng1])
+	return radiansX
+
+#X is train_data, leafsize is the param of BallTree
+def build_tree(radiansX, leafsize):
+	#use radians build KNN tree
+	tree = BallTree(radiansX, leaf_size = leafsize, metric = DistanceMetric.get_metric('haversine'))
+	return tree
+
+if  __name__ == "__main__":
+
+	topK = 5
+	
+	np.random.seed(1)
+	X = np.random.uniform(20, 70, (100,2)) + np.random.normal(0, 10, (100,2))
+	testX = np.random.uniform(40,50, (20,2))
+	radiansX = latlng2radians(X)
+	
+	#Note that the haversine distance metric requires data in the form of [latitude, longitude] and both inputs and outputs are in units of radians
+	#tree = BallTree(radiansX, leaf_size = 5, metric = DistanceMetric.get_metric('haversine'))
+	tree = build_tree(radiansX, 5)
+	dist, index = tree.query(testX, k = topK, return_distance = True)
+	print(index)
+	print(dist)

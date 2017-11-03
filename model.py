@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
 
-data_type = {'jin': np.float64, 'wei': np.float64}
+data_type = {'jing': np.float64, 'wei': np.float64}
 counter = 0
 score = 0
 

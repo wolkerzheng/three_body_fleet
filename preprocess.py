@@ -26,6 +26,7 @@ eusb = pd.merge(usb, sid_cid_mid, on='sid')
 # eusb = pd.read_csv('i:tianchi/eusb.csv', header=0, low_memory=False)
 
 mall_group = eusb.groupby('mid')
+mall_si = si.groupby('mid')
 
 i = 0
 for k, v in mall_group:
@@ -35,6 +36,9 @@ for k, v in mall_group:
     sorted_v.to_csv('./subset/' + k + '.csv', index=None)
 
 
+#record the shop_infos in different mall
+for k, v in mall_si:
+	v.to_csv('./mall_shop/' + k + '.csv', index = None)
 
 
 
