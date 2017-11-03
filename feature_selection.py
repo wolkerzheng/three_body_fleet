@@ -20,7 +20,7 @@ test_data.columns = ['rid', 'uid', 'mid', 'time', 'jing', 'wei', 'wifi']
 
 
 #according to shops in different mall to build the KNN tree of each mall
-leafsize = 30
+leafsize = 2
 topK = 10
 # for loop, handle subset independently
 for file_name in subsets:  # file_name = m_xxxx.csv
@@ -32,7 +32,7 @@ for file_name in subsets:  # file_name = m_xxxx.csv
 	mall_shop_path = "./mall_shop/" + file_name
 	shop_data = pd.read_csv(mall_shop_path, header = 0, dtype = data_type, low_memory = False)
 	shop_data.columns = ['sid', 'cid', 'jing', 'wei', 'price', 'mid']
-	lat_lng = shop_data[['wei', 'jing']]
+	lat_lng = np.array(shop_data[['wei', 'jing']])
 	radiansX = latlng2radians(lat_lng)
 	tree = build_tree(radiansX, leafsize)
 
@@ -58,12 +58,20 @@ for file_name in subsets:  # file_name = m_xxxx.csv
 	data['c_wifi'] = data.wifi.apply(connected_wifi)
 
 	#query the KNN tree
-	testX = current_test_data[['wei', 'jing']]
+	testX = np.array(current_test_data[['wei', 'jing']])
 	radians_testX = latlng2radians(testX)
 	index = tree.query(radians_testX, k = topK, return_distance = False)
-	#############how to write topK shop_id to current_test_data?????????????????????????????????????????????????????????????????????
-	current_test_data['topK_shopid'] = shop_data['sid'][index]
+	topK_sid = np.array(shop_data['sid'])[index]
+	new_topK_sid = []
+	for topKx in topK_sid:
+		new_topK_sid.append(";".join(topKx))
+	current_test_data['topK_shopid'] = new_topK_sid
 
+	topK_cid = np.array(shop_data['cid'])[index]
+	new_topK_cid = []
+	for topKx in topK_cid:
+		new_topK_cid.append(";".join(topKx))
+	current_test_data['topK_cid'] = new_topK_cid
 
 	# [3.0] use previously fitted label encoder to encode two newly extracted wifi feature
 	data.s_wifi = label_encoder.transform(data.s_wifi)
